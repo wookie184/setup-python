@@ -10,23 +10,31 @@ function isPyPyVersion(versionSpec: string) {
 
 async function run() {
   try {
-    let version = core.getInput('python-version');
-    if (version) {
-      const arch: string = core.getInput('architecture') || os.arch();
-      if (isPyPyVersion(version)) {
-        const installed = await finderPyPy.findPyPyVersion(version, arch);
-        core.info(
-          `Successfully setup PyPy ${installed.resolvedPyPyVersion} with Python (${installed.resolvedPythonVersion})`
-        );
-      } else {
-        const installed = await finder.findPythonVersion(version, arch);
-        core.info(
-          `Successfully setup ${installed.impl} (${installed.version})`
-        );
+    let versions: string[] = core
+      .getInput('python-version')
+      .split(' ')
+      .filter(x => x !== '');
+    let archs: string[] = core
+      .getInput('architecture')
+      .split(' ')
+      .filter(x => x !== '') || [os.arch()];
+    for (var arch of archs) {
+      for (var version of versions) {
+        if (isPyPyVersion(version)) {
+          const installed = await finderPyPy.findPyPyVersion(version, arch);
+          core.info(
+            `Successfully setup PyPy ${installed.resolvedPyPyVersion} with Python (${installed.resolvedPythonVersion})`
+          );
+        } else {
+          const installed = await finder.findPythonVersion(version, arch);
+          core.info(
+            `Successfully setup ${installed.impl} (${installed.version})`
+          );
+        }
+        const matchersPath = path.join(__dirname, '..', '.github');
+        core.info(`##[add-matcher]${path.join(matchersPath, 'python.json')}`);
       }
     }
-    const matchersPath = path.join(__dirname, '..', '.github');
-    core.info(`##[add-matcher]${path.join(matchersPath, 'python.json')}`);
   } catch (err) {
     core.setFailed(err.message);
   }
