@@ -1,3 +1,15 @@
+# Fork note
+
+This fork allows multiple versions and architectures to be passed in to install multiple python versions at once. To do this you should pass in a space separated string of the values you want. For example:
+```
+    - name: Set up Python Versions
+      uses: wookie184/setup-python@v2
+      with:
+        python-version: "3.7 3.8 3.9"
+        architecture: "x64 x86"
+```
+I used this personally as maturin can build from multiple python versions in an environment, so doing it in one job is more efficient. You can seen an example workflow here: https://github.com/wookie184/dupesearch/blob/master/.github/workflows/python-publish.yml
+
 # setup-python V2
 
 <p align="left">
